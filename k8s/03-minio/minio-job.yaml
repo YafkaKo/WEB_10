@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-minio
+  namespace: lab-10-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: mc
+        image: minio/mc
+        env:
+        - name: MINIO_SERVER
+          value: "http://minio:9000"
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: root-user
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: root-password
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: access-key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: secret-key
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          # Wait for MinIO to be ready
+          until mc alias set minio ${MINIO_SERVER} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+            echo "Waiting for MinIO...";
+            sleep 2;
+          done
+          mc mb minio/storage
+          mc policy set public minio/storage
+          mc admin accesskey create minio/ --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY}
+      restartPolicy: Never

@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-10-app
+  namespace: lab-10-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lab-10-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lab-10-app
+    spec:
+      containers:
+      - name: lab-10-app
+        image: yakovkorniy/web_10:1 #your-docker-username/your-docker-repository:1
+        ports:
+        - containerPort: 3000
+        env:
+        - name: APP_PORT
+          value: "3000"
+        - name: NODE_ENV
+          value: "production"
+        - name: AUTH_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: jwt-secret
+        - name: POSTGRES_HOST
+          value: "postgresql.lab-10-app.svc.cluster.local"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "lab_db"
+        - name: POSTGRES_USER
+          value: "student"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secrets
+              key: password
+        - name: REDIS_HOST
+          value: "redis.lab-10-app.svc.cluster.local"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: password
+        - name: REDIS_PORT
+          value: "6379"
+        - name: MINIO_ENDPOINT
+          value: "http://minio.lab-10-app.svc.cluster.local"
+        - name: MINIO_PORT
+          value: "9000"
+        - name: MINIO_REGION
+          value: "ru-rnd-1"
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: access-key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: secret-key
+        - name: RABBITMQ_HOST
+          value: "rabbitmq.lab-10-app.svc.cluster.local"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secrets
+              key: username
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secrets
+              key: password
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5

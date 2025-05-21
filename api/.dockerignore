@@ -1,0 +1,51 @@
+# Node.js specific ignores
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Dependency directories (if using different package managers)
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnpm-store/
+
+# Environment files (except the production one)
+.env
+.env.local
+.env.development
+.env.test
+.env*.local
+
+# Build and CI files
+dist/
+build/
+coverage/
+e2e/
+*.tsbuildinfo
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# Docker files (except Dockerfile and .dockerignore)
+docker-compose.yml
+docker-compose.*.yml

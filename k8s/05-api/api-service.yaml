@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-10-app
+  namespace: lab-10-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: lab-10-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
